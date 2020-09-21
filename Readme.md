@@ -2,7 +2,8 @@
 
 
 [Rubic](https://review.udacity.com/#!/rubrics/2634/view)
-[Main github] (https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter)
+
+[Main github](https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter)
 
 ## Full Stack Trivia
 
