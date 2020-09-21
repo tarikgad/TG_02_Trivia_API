@@ -1,8 +1,8 @@
 # Full Stack API Final Project
 
 
-[Rubic]{https://review.udacity.com/#!/rubrics/2634/view}
-[Main github] {https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter}
+[Rubic](https://review.udacity.com/#!/rubrics/2634/view)
+[Main github] (https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter)
 
 ## Full Stack Trivia
 
