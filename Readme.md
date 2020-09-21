@@ -23,7 +23,7 @@ Follow these steps in order to start the application:
     psql -f trivia.psql trivia
     ```
     
-    d. Update `user_name` & 'admin_pass` in `models.py` for the database `username` and `password` respectievly
+    d. Update `user_name` & `admin_pass` in `models.py` for the database `username` and `password` respectievly
 
 
 2. Prepare the frontend
