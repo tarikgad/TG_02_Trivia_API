@@ -4,6 +4,7 @@ Flask
 Flask-Cors
 Flask-RESTful
 Flask-SQLAlchemy
+python-dotenv
 itsdangerous
 Jinja2
 MarkupSafe
