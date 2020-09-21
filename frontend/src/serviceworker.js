@@ -1,70 +1,135 @@
-#
-Full Stack Trivia API Frontend
+// This optional code is used to register a service worker.
+// register() is not called by default.
 
-## Getting Setup
+// This lets the app load faster on subsequent visits in production, and gives
+// it offline capabilities. However, it also means that developers (and users)
+// will only see deployed updates on subsequent visits to a page, after all the
+// existing tabs open on the page have been closed, since previously cached
+// resources are updated in the background.
 
-    >
-    _tip_: this frontend is designed to work with[Flask - based Backend](.. / backend).It is recommended you stand up the backend first, test using Postman or curl, update the endpoints in the frontend, and then the frontend should integrate smoothly.
+// To learn more about the benefits of this model and instructions on how to
+// opt-in, read https://bit.ly/CRA-PWA
 
-###Installing Dependencies
+const isLocalhost = Boolean(
+    window.location.hostname === 'localhost' ||
+    // [::1] is the IPv6 localhost address.
+    window.location.hostname === '[::1]' ||
+    // 127.0.0.1/8 is considered localhost for IPv4.
+    window.location.hostname.match(
+        /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+    )
+);
 
-#### Installing Node and NPM
+export function register(config) {
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+        // The URL constructor is available in all browsers that support SW.
+        const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
+        if (publicUrl.origin !== window.location.origin) {
+            // Our service worker won't work if PUBLIC_URL is on a different origin
+            // from what our page is served on. This might happen if a CDN is used to
+            // serve assets; see https://github.com/facebook/create-react-app/issues/2374
+            return;
+        }
 
-This project depends on Nodejs and Node Package Manager(NPM).Before continuing, you must download and install Node(the download includes NPM) from[https: //nodejs.com/en/download](https://nodejs.org/en/download/).
+        window.addEventListener('load', () => {
+            const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
-        ####Installing project dependencies
+            if (isLocalhost) {
+                // This is running on localhost. Let's check if a service worker still exists or not.
+                checkValidServiceWorker(swUrl, config);
 
-        This project uses NPM to manage software dependencies.NPM Relies on the package.json file located in the `frontend`
-        directory of this repository.After cloning, open your terminal and run:
+                // Add some additional logging to localhost, pointing developers to the
+                // service worker/PWA documentation.
+                navigator.serviceWorker.ready.then(() => {
+                    console.log(
+                        'This web app is being served cache-first by a service ' +
+                        'worker. To learn more, visit https://bit.ly/CRA-PWA'
+                    );
+                });
+            } else {
+                // Is not localhost. Just register service worker
+                registerValidSW(swUrl, config);
+            }
+        });
+    }
+}
 
-        ``
-        `bash
-npm install
-`
-        ``
+function registerValidSW(swUrl, config) {
+    navigator.serviceWorker
+        .register(swUrl)
+        .then(registration => {
+            registration.onupdatefound = () => {
+                const installingWorker = registration.installing;
+                if (installingWorker == null) {
+                    return;
+                }
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                            // At this point, the updated precached content has been fetched,
+                            // but the previous service worker will still serve the older
+                            // content until all client tabs are closed.
+                            console.log(
+                                'New content is available and will be used when all ' +
+                                'tabs for this page are closed. See https://bit.ly/CRA-PWA.'
+                            );
 
-        >
-        _tip_: ** npm i ** is shorthand
-        for ** npm install **
+                            // Execute callback
+                            if (config && config.onUpdate) {
+                                config.onUpdate(registration);
+                            }
+                        } else {
+                            // At this point, everything has been precached.
+                            // It's the perfect time to display a
+                            // "Content is cached for offline use." message.
+                            console.log('Content is cached for offline use.');
 
-        ##Required Tasks
+                            // Execute callback
+                            if (config && config.onSuccess) {
+                                config.onSuccess(registration);
+                            }
+                        }
+                    }
+                };
+            };
+        })
+        .catch(error => {
+            console.error('Error during service worker registration:', error);
+        });
+}
 
-        ## Running Your Frontend in Dev Mode
+function checkValidServiceWorker(swUrl, config) {
+    // Check if the service worker can be found. If it can't reload the page.
+    fetch(swUrl)
+        .then(response => {
+            // Ensure service worker exists, and that we really are getting a JS file.
+            const contentType = response.headers.get('content-type');
+            if (
+                response.status === 404 ||
+                (contentType != null && contentType.indexOf('javascript') === -1)
+            ) {
+                // No service worker found. Probably a different app. Reload the page.
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.unregister().then(() => {
+                        window.location.reload();
+                    });
+                });
+            } else {
+                // Service worker found. Proceed as normal.
+                registerValidSW(swUrl, config);
+            }
+        })
+        .catch(() => {
+            console.log(
+                'No internet connection found. App is running in offline mode.'
+            );
+        });
+}
 
-        The frontend app was built using create - react - app.In order to run the app in development mode use ``
-        `npm start`
-        ``.You can change the script in the ``
-        `package.json`
-        ``
-        file.
-
-        Open[http: //localhost:3000](http://localhost:3000) to view it in the browser. The page will reload if you make edits.<br>
-
-            ``
-            `bash
-npm start
-`
-            ``
-
-            ##
-            Request Formatting
-
-            The frontend should be fairly straightforward and disgestible.You 'll primarily work within the ```components``` folder in order to edit the endpoints utilized by the components. While working on your backend request handling and response formatting, you can reference the frontend to view how it parses the responses. 
-
-            After you complete your endpoints, ensure you
-            return to and update the frontend to make request and handle responses appropriately:
-                -Correct endpoints -
-                Update response body handling
-
-            ## Optional: Styling
-
-            In addition, you may want to customize and style the frontend by editing the CSS in the ``
-            `stylesheets`
-            ``
-            folder.
-
-            ##Optional: Game Play Mechanics
-
-            Currently, when a user plays the game they play up to five questions of the chosen category.If there are fewer than five questions in a category, the game will end when there are no more questions in that category.
-
-            You can optionally update this game play to increase the number of questions or whatever other game mechanics you decide.Make sure to specify the new mechanics of the game in the README of the repo you submit so the reviewers are aware that the behavior is correct.
+export function unregister() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.unregister();
+        });
+    }
+}
