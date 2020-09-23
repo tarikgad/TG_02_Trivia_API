@@ -12,7 +12,7 @@ QUESTIONS_PER_PAGE = 10
 def paginate(request, selection):
   category = request.args.get('page', 1, type=int)
   start =  (category - 1) * QUESTIONS_PER_PAGE
-  end = start + QUESTIONS_PER_PAGE -1
+  end = start + QUESTIONS_PER_PAGE
 
   categories = [category.format() for category in selection]
   current_categories = categories[start:end]
@@ -255,44 +255,59 @@ def create_app(test_config=None):
   including 404 and 422. 
   '''
   @app.errorhandler(404)
-  def not_found_error(error):
-    return redirect("https://httpstatusdogs.com/img/404.jpg"), 404
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 404,
+        "message": "Not Found"
+        }), 404
 
   @app.errorhandler(405)
-  def method_not_allowed_error(error):
-    return redirect("https://httpstatusdogs.com/img/405.jpg"), 405
+  def method_not_allowed(error):
+    return jsonify({
+        "success": False, 
+        "error": 405,
+        "message": "Method Not Allowed"
+        }), 405
 
   @app.errorhandler(406)
-  def not_acceptable_error(error):
-    return redirect("https://httpstatusdogs.com/img/406.jpg"), 406
-
+  def not_acceptable(error):
+    return jsonify({
+        "success": False, 
+        "error": 406,
+        "message": "Not Acceptable"
+        }), 406
   @app.errorhandler(408)
-  def request_timeout_error(error):
-    return redirect("https://httpstatusdogs.com/img/408.jpg"), 408
+  def request_timeout(error):
+    return jsonify({
+        "success": False, 
+        "error": 408,
+        "message": "Request Timeout"
+        }), 408
 
   @app.errorhandler(414)
-  def request_uri_too_long_error(error):
-    return redirect("https://httpstatusdogs.com/img/414.jpg"), 414
-
-  @app.errorhandler(422)
-  def unprocessable_entity_error(error):
-      return redirect("https://httpstatusdogs.com/img/422.jpg"), 422
-
-  @app.errorhandler(424)
-  def failed_dependancy_error(error):
-      return redirect("https://httpstatusdogs.com/img/424.jpg"), 424
-
-  @app.errorhandler(429)
-  def too_many_requests_error(error):
-      return redirect("https://httpstatusdogs.com/img/429.jpg"), 429
+  def request_uri_too_long(error):
+    return jsonify({
+        "success": False, 
+        "error": 414,
+        "message": "Request URI Too Long"
+        }), 414
 
   @app.errorhandler(500)
   def internal_server_error(error):
-      return redirect("https://httpstatusdogs.com/img/500.jpg"), 500
+      return jsonify({
+        "success": False, 
+        "error": 500,
+        "message": "Internal Server Error"
+        }), 500
 
   @app.errorhandler(503)
   def service_unavailable_error(error):
-      return redirect("https://httpstatusdogs.com/img/503.jpg"), 503
+      return jsonify({
+        "success": False, 
+        "error": 503,
+        "message": "Service Unavailable Error"
+        }), 503
 
 
   return app
