@@ -23,7 +23,7 @@ Follow these steps in order to start the application:
     psql -f trivia.psql trivia
     ```
     
-    d. Update `user_name` & `admin_pass` in `models.py` for the database `username` and `password` respectievly
+    d. Update `USER_NAME` & `PASSWORD` in `.env` for the database `username` and `password` respectievly
 
 
 2. Prepare the frontend
@@ -44,30 +44,52 @@ Follow these steps in order to start the application:
 
 ## REVIEW_COMMENT
 ```
-Example for endpoint to get all categories:
+GET `/categories`
+- Send all available categories in which the keys are the ids and the value is the corresponding string of the category
+- It returns the available categories sorted by category name
+```
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+```
+GET `/questions`
+- Send all questions ordered by id
+- Returned questions are limited to 10 questions per page
+- `page` is a url argument to determine the required page, i.e. `/questions?page=2` returns the second page of questions (Q11-Q20)
+```
 
-GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+```
+DELETE `/questions/id`
+- Delete question with its id
+- Retreive all remaining questions and send back first page of questions
+```
 
+```
+POST `/questions`
+- Add a new question to the list including its answer, difficulty, and category
+```
+
+```
+POST `/questions/search`
+- It searchs within the questions for specific keyword and case insinsitive
+- It uses `searchTerm` from the main page
+```
+
+```
+GET `/categories/id/questions`
+- Retreive all questions for a specific category based on category id
+```
+
+```
+POST `/quizzes`
+- It's used to pick a random question and send for the play
+- It receive in the message body a list of previous questions and the selected category
+- Category will be 0 if required to play all categories
+- It filters the question by the category then filter out the previous ones. After that it pick a random question and send it back
+- If all questions in the selected category finished, then ends the game
 ```
 
 
 ## Testing
-To run the tests, run
+To run the tests, go to the backend folder and run
 ```
 dropdb trivia_test
 createdb trivia_test

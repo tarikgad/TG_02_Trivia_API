@@ -1,12 +1,23 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, redirect
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func,text
 from flask_cors import CORS
 import random
 
-from models import setup_db, Question, Category
+from models import *
 
 QUESTIONS_PER_PAGE = 10
+
+def paginate(request, selection):
+  category = request.args.get('page', 1, type=int)
+  start =  (category - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE -1
+
+  categories = [category.format() for category in selection]
+  current_categories = categories[start:end]
+
+  return current_categories
 
 def create_app(test_config=None):
   # create and configure the app
@@ -16,16 +27,36 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-
+  cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+  
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
+  @app.after_request
+  def after_request(response):
+      response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+      response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
+      return response
 
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  # GET /categories used to list all available categories
+  @app.route('/categories')
+  def retrieve_categories():
+    selection = Category.query.order_by(Category.type).all()
+    current_selections = [category.format() for category in selection]
+
+    if len(current_selections) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'categories': current_selections,
+      'total_categories': len(Category.query.all()),
+    })
 
 
   '''
@@ -39,6 +70,25 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  # GET /questions?page=2 retreive questions in page 2
+  @app.route('/questions')
+  def retrieve_questions():
+    selection = Question.query.order_by(Question.id).all()
+    current_qustions = paginate(request, selection)
+
+    if len(current_qustions) == 0:
+      abort(404)
+      
+    data = {x['category'] for x in current_qustions}
+    d = {x:Category.query.filter_by(id=x).first().type for x in data}
+    
+    return jsonify({
+      'success': True,
+      'questions': current_qustions,
+      'total_questions': len(Question.query.all()),
+      'categories': d
+    })
+
 
   '''
   @TODO: 
@@ -46,6 +96,32 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  # DELETE /questions/1 used to delete question with id_1
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  def delete_question(question_id):
+    try:
+      question = Question.query.filter(Question.id == question_id).one_or_none()
+
+      # if no question with this id, then abort
+      if question is None:
+        abort(404)
+
+      question.delete()
+      
+      # after deleting the question, retreive all remaining questions and send page-1
+      selection = Question.query.order_by(Question.id).all()
+      current_questions = paginate(request, selection)
+
+      return jsonify({
+        'success': True,
+        'deleted': question_id,
+        'questions': current_questions,
+        'total_questions': len(Question.query.all())
+      })
+
+    except:
+      abort(422)
+
 
   '''
   @TODO: 
@@ -56,6 +132,32 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  # POST /questions used to add a new question
+  @app.route('/questions', methods=['POST'])
+  def create_question():
+    body = request.get_json()
+
+    new_question = body.get('question', None)
+    new_answer = body.get('answer', None)
+    new_category = body.get('category', None)
+    new_difficulty = body.get('difficulty', None)
+
+    try:
+      question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+      question.insert()
+
+      selection = Question.query.order_by(Question.id).all()
+      current_questions = paginate(request, selection)
+
+      return jsonify({
+        'success': True,
+        'created': question.id,
+        'questions': current_questions,
+        'total_questions': len(Question.query.all())
+      })
+
+    except:
+      abort(422)
 
   '''
   @TODO: 
@@ -66,6 +168,19 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  # POST /questions/search used to search with the questions for specific keyword and case insinsitive
+  @app.route('/questions/search', methods=['POST'])
+  def search_questions():
+    x = request.get_json('searchTerm')['searchTerm']
+    # search within the question field for the searchTerm in lowercase to make sure both in same ascii level
+    Q_search = Question.query.filter(func.lower(Question.question).contains(func.lower(x))).all()
+    
+    Qs = [q.format() for q in Q_search]
+    
+    return jsonify({
+      'questions': Qs,
+      'total_questions': len(Qs)
+    })
 
   '''
   @TODO: 
@@ -74,6 +189,21 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  # GET /categories/id/questions used to retreive all questions for a specific category
+  @app.route('/categories/<int:category_id>/questions')
+  def retrieve_questions_by_category(category_id):
+    selection = Question.query.filter_by(category=category_id).order_by(Question.id).all()
+    current_qustions = paginate(request, selection)
+
+    if len(current_qustions) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'questions': current_qustions,
+      'current_category': [],
+      'total_questions': len(Question.query.filter_by(category=category_id).all())
+    })
 
 
   '''
@@ -86,11 +216,83 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  # POST /quizzes used to pick a random question of specific category, or all categories, and not picked before
+  @app.route('/quizzes', methods=['POST'])
+  def play_quizzes():
+    pre_Questions = request.get_json('previous_questions')['previous_questions'] #array of last questions
+    Q_category = request.get_json('quiz_category')['quiz_category']['id'] #category id. It will be 0 for all categories
+    
+    # retrieve all questions in the selected category
+    if Q_category == 0:
+      all_Q = Question.query.all()
+    else:
+      all_Q = Question.query.filter_by(category=Q_category).all()
+    
+    # list of all questions' IDs in the selected category
+    data=[x.id for x in all_Q]
+    
+    # remove the previous questions' IDs from the in-scope IDs
+    for x in pre_Questions:
+      data.remove(x)
+    
+    # if all questions in the selected category finished, then force ending
+    if len(data) > 0:
+      new_Q = random.choice(data)
+      question = Question.query.filter_by(id=new_Q).first().format()
+      forceEnd = False
+    else:
+      question = True
+      forceEnd = True
+    
+    return jsonify({
+      'question': question,
+      'forceEnd': forceEnd
+    })
 
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
+  @app.errorhandler(404)
+  def not_found_error(error):
+    return redirect("https://httpstatusdogs.com/img/404.jpg"), 404
+
+  @app.errorhandler(405)
+  def method_not_allowed_error(error):
+    return redirect("https://httpstatusdogs.com/img/405.jpg"), 405
+
+  @app.errorhandler(406)
+  def not_acceptable_error(error):
+    return redirect("https://httpstatusdogs.com/img/406.jpg"), 406
+
+  @app.errorhandler(408)
+  def request_timeout_error(error):
+    return redirect("https://httpstatusdogs.com/img/408.jpg"), 408
+
+  @app.errorhandler(414)
+  def request_uri_too_long_error(error):
+    return redirect("https://httpstatusdogs.com/img/414.jpg"), 414
+
+  @app.errorhandler(422)
+  def unprocessable_entity_error(error):
+      return redirect("https://httpstatusdogs.com/img/422.jpg"), 422
+
+  @app.errorhandler(424)
+  def failed_dependancy_error(error):
+      return redirect("https://httpstatusdogs.com/img/424.jpg"), 424
+
+  @app.errorhandler(429)
+  def too_many_requests_error(error):
+      return redirect("https://httpstatusdogs.com/img/429.jpg"), 429
+
+  @app.errorhandler(500)
+  def internal_server_error(error):
+      return redirect("https://httpstatusdogs.com/img/500.jpg"), 500
+
+  @app.errorhandler(503)
+  def service_unavailable_error(error):
+      return redirect("https://httpstatusdogs.com/img/503.jpg"), 503
+
+
   return app

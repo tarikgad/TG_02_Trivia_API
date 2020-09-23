@@ -61,7 +61,8 @@ class FormView extends Component {
 
     handleChange = (event) => {
         this.setState({
-            [event.target.name]: event.target.value })
+            [event.target.name]: event.target.value
+        })
     }
 
     render() {
@@ -78,15 +79,15 @@ class FormView extends Component {
             input type = "text"
             name = "question"
             onChange = { this.handleChange }
-            /> <
-            /label> <
+            /> < /
+            label > <
             label >
             Answer <
             input type = "text"
             name = "answer"
             onChange = { this.handleChange }
-            /> <
-            /label> <
+            /> < /
+            label > <
             label >
             Difficulty <
             select name = "difficulty"
@@ -95,9 +96,8 @@ class FormView extends Component {
             option value = "1" > 1 < /option> <
             option value = "2" > 2 < /option> <
             option value = "3" > 3 < /option> <
-            option value = "4" > 4 < /option> <
-            option value = "5" > 5 < /option> <
-            /select> <
+            option value = "4" > 4 < /option> < /
+            select > <
             /label> <
             label >
             Category <
@@ -105,19 +105,19 @@ class FormView extends Component {
             onChange = { this.handleChange } > {
                 Object.keys(this.state.categories).map(id => {
                     return ( <
-                        option key = { id }
-                        value = { id } > { this.state.categories[id] } < /option>
+                        option key = { this.state.categories[id]['id'] }
+                        value = { this.state.categories[id]['id'] } > { this.state.categories[id]['type'] } < /option>
                     )
                 })
             } <
-            /select> <
-            /label> <
+            /select> < /
+            label > <
             input type = "submit"
             className = "button"
             value = "Submit" / >
             <
-            /form> <
-            /div>
+            /form> < /
+            div >
         );
     }
 }

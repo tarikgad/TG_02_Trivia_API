@@ -53,7 +53,8 @@ class QuestionView extends Component {
                 span key = { i }
                 className = { `page-num ${i === this.state.page ? 'active' : ''}` }
                 onClick = {
-                    () => { this.selectPage(i) } } > { i } <
+                    () => { this.selectPage(i) }
+                } > { i } <
                 /span>)
             }
             return pageNumbers;
@@ -80,7 +81,7 @@ class QuestionView extends Component {
 
         submitSearch = (searchTerm) => {
             $.ajax({
-                url: `/questions`, //TODO: update request URL
+                url: `/questions/search`, //TODO: update request URL
                 type: "POST",
                 dataType: 'json',
                 contentType: 'application/json',
@@ -124,30 +125,32 @@ class QuestionView extends Component {
 
         render() {
             return ( <
-                div className = "question-view" >
-                <
-                div className = "categories-list" >
-                <
-                h2 onClick = {
-                    () => { this.getQuestions() } } > Categories < /h2> <
-                ul > {
-                    Object.keys(this.state.categories).map((id, ) => ( <
-                        li key = { id }
-                        onClick = {
-                            () => { this.getByCategory(id) } } > { this.state.categories[id] } <
-                        img className = "category"
-                        src = { `${this.state.categories[id]}.svg` }
-                        /> <
-                        /li>
-                    ))
-                } <
-                /ul> <
-                Search submitSearch = { this.submitSearch }
-                /> <
-                /div> <
-                div className = "questions-list" >
-                <
-                h2 > Questions < /h2> {
+                    div className = "question-view" >
+                    <
+                    div className = "categories-list" >
+                    <
+                    h2 onClick = {
+                        () => { this.getQuestions() }
+                    } > Categories < /h2> <
+                    ul > {
+                        Object.keys(this.state.categories).map((id, ) => ( <
+                            li key = { id }
+                            onClick = {
+                                () => { this.getByCategory(id) }
+                            } > { this.state.categories[id] } <
+                            img className = "category"
+                            src = { `${this.state.categories[id]}.svg` }
+                            /> < /
+                            li >
+                        ))
+                    } <
+                    /ul> <
+                    Search submitSearch = { this.submitSearch }
+                    /> < /
+                    div > <
+                    div className = "questions-list" >
+                    <
+                    h2 > Questions < /h2> {
                     this.state.questions.map((q, ind) => ( <
                         Question key = { q.id }
                         question = { q.question }
@@ -159,13 +162,13 @@ class QuestionView extends Component {
                     ))
                 } <
                 div className = "pagination-menu" > { this.createPagination() } <
-                /div> <
-                /div>
+                /div> < /
+            div >
 
                 <
                 /div>
-            );
-        }
+        );
     }
+}
 
-    export default QuestionView;
+export default QuestionView;

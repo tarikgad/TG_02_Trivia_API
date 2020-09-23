@@ -28,21 +28,24 @@ class Question extends Component {
             img src = "delete.png"
             className = "delete"
             onClick = {
-                () => this.props.questionAction('DELETE') }
+                () => this.props.questionAction('DELETE')
+            }
             />
 
             <
             /div> <
             div className = "show-answer button"
             onClick = {
-                () => this.flipVisibility() } > { this.state.visibleAnswer ? 'Hide' : 'Show' }
+                () => this.flipVisibility()
+            } > { this.state.visibleAnswer ? 'Hide' : 'Show' }
             Answer <
             /div> <
             div className = "answer-holder" >
             <
             span style = {
-                { "visibility": this.state.visibleAnswer ? 'visible' : 'hidden' } } > Answer: { answer } < /span> <
-            /div> <
+                { "visibility": this.state.visibleAnswer ? 'visible' : 'hidden' }
+            } > Answer: { answer } < /span> < /
+            div > <
             /div>
         );
     }
