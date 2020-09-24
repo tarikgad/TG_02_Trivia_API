@@ -80,8 +80,10 @@ def create_app(test_config=None):
       abort(404)
       
     data = Category.query.order_by(Category.type).all()
-    d = {x.id:x.type for x in data}
-    
+    d={}
+    for i in range(len(data)):
+      d[i+1] = data[i].type
+
     return jsonify({
       'success': True,
       'questions': current_qustions,
@@ -228,6 +230,9 @@ def create_app(test_config=None):
     else:
       all_Q = Question.query.filter_by(category=Q_category).all()
     
+    if len(all_Q) == 0:
+      abort (404)
+    
     # list of all questions' IDs in the selected category
     data=[x.id for x in all_Q]
     
@@ -292,6 +297,14 @@ def create_app(test_config=None):
         "error": 414,
         "message": "Request URI Too Long"
         }), 414
+
+  @app.errorhandler(422)
+  def unprocessable_entity(error):
+    return jsonify({
+        "success": False, 
+        "error": 422,
+        "message": "Unprocessable Entity"
+        }), 422
 
   @app.errorhandler(500)
   def internal_server_error(error):

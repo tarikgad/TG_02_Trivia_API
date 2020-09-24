@@ -78,6 +78,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
 
 
+    def test_delete_error_questions(self):
+        res = self.client().delete('/questions/0')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['message'], 'Unprocessable Entity')
+
+
     def test_post_add_questions(self):
         res = self.client().post('/questions', json={'question': 'a new question', 'answer': 'its answer', 'difficulty': 1, 'category': 3})
         data = json.loads(res.data)
@@ -88,13 +96,29 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
 
 
+    def test_post_error_add_questions(self):
+        res = self.client().post('/questions', json={'question': 'a new question', 'answer': 'its answer', 'difficulty': 1, 'category': 10})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['message'], 'Unprocessable Entity')
+
+
     def test_post_search_questions(self):
-        res = self.client().post('/questions/search', json={'searchTerm': 'car'})
+        res = self.client().post('/questions/search', json={'searchTerm': 'a'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['questions'])
+
+
+    def test_post_error_search_questions(self):
+        res = self.client().post('/questions/search', json={'searchTerm': 'car'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(data['total_questions'])
 
 
     def test_get_categorized_questions(self):
@@ -107,13 +131,29 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
 
 
-    def test_play(self):
+    def test_get_error_categorized_questions(self):
+        res = self.client().get('/categories/10/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['message'], 'Not Found')
+
+
+    def test_post_play(self):
         res = self.client().post('/quizzes', json={'previous_questions': [], 'quiz_category': {'id': 0}})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertFalse(data['forceEnd'])
         self.assertTrue(data['question'])
+
+
+    def test_post_error_play(self):
+        res = self.client().post('/quizzes', json={'previous_questions': [], 'quiz_category': {'id': 10}})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['message'], 'Not Found')
 
 
 # Make the tests conveniently executable
