@@ -79,8 +79,8 @@ def create_app(test_config=None):
     if len(current_qustions) == 0:
       abort(404)
       
-    data = {x['category'] for x in current_qustions}
-    d = {x:Category.query.filter_by(id=x).first().type for x in data}
+    data = Category.query.order_by(Category.type).all()
+    d = {x.id:x.type for x in data}
     
     return jsonify({
       'success': True,
@@ -219,7 +219,7 @@ def create_app(test_config=None):
   # POST /quizzes used to pick a random question of specific category, or all categories, and not picked before
   @app.route('/quizzes', methods=['POST'])
   def play_quizzes():
-    pre_Questions = request.get_json('previous_questions')['previous_questions'] #array of last questions
+    pre_Questions = request.get_json('previous_questions')['previous_questions'] #list of last questions
     Q_category = request.get_json('quiz_category')['quiz_category']['id'] #category id. It will be 0 for all categories
     
     # retrieve all questions in the selected category

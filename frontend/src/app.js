@@ -34,10 +34,10 @@ class App extends Component {
             component = { QuizView }
             /> <
             Route component = { QuestionView }
-            /> <
-            /Switch> <
-            /Router> <
-            /div>
+            /> < /
+            Switch > <
+            /Router> < /
+            div >
         );
 
     }
